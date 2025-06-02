@@ -1,0 +1,56 @@
+{
+  "name": "@genobank/auth",
+  "version": "1.0.0",
+  "description": "GenoBank.io Authentication Module - Web3 and OAuth login for any web application",
+  "main": "genobank-auth.js",
+  "types": "index.d.ts",
+  "files": [
+    "genobank-auth.js",
+    "genobank-ui.js",
+    "index.d.ts",
+    "examples/",
+    "assets/"
+  ],
+  "scripts": {
+    "build": "echo 'No build step required - pure JavaScript module'",
+    "test": "echo 'Tests to be implemented'",
+    "demo": "npx http-server examples/ -p 8080"
+  },
+  "keywords": [
+    "genobank",
+    "web3",
+    "ethereum",
+    "authentication",
+    "metamask",
+    "oauth",
+    "google",
+    "magic",
+    "avalanche",
+    "blockchain"
+  ],
+  "author": "GenoBank.io",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Genobank/login.git"
+  },
+  "homepage": "https://github.com/Genobank/login#readme",
+  "bugs": {
+    "url": "https://github.com/Genobank/login/issues"
+  },
+  "peerDependencies": {
+    "ethers": "^5.0.0",
+    "web3": "^3.0.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "browser": {
+    "genobank-auth.js": "./genobank-auth.js",
+    "genobank-ui.js": "./genobank-ui.js"
+  },
+  "cdn": "https://unpkg.com/@genobank/auth@latest/genobank-auth.js"
+}
