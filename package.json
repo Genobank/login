@@ -1,12 +1,14 @@
 {
   "name": "@genobank/auth",
   "version": "1.0.0",
-  "description": "GenoBank.io Authentication Module - Web3 and OAuth login for any web application",
+  "description": "GenoBank.io Authentication & Biofiles Module - Web3/OAuth login and genomic file import for any web application",
   "main": "genobank-auth.js",
   "types": "index.d.ts",
   "files": [
     "genobank-auth.js",
     "genobank-ui.js",
+    "genobank-biofiles.js",
+    "genobank-biofiles-ui.js",
     "index.d.ts",
     "examples/",
     "assets/"
@@ -26,7 +28,13 @@
     "google",
     "magic",
     "avalanche",
-    "blockchain"
+    "blockchain",
+    "biofiles",
+    "genomics",
+    "vcf",
+    "snp",
+    "bioinformatics",
+    "file-import"
   ],
   "author": "GenoBank.io",
   "license": "MIT",
@@ -50,7 +58,9 @@
   },
   "browser": {
     "genobank-auth.js": "./genobank-auth.js",
-    "genobank-ui.js": "./genobank-ui.js"
+    "genobank-ui.js": "./genobank-ui.js",
+    "genobank-biofiles.js": "./genobank-biofiles.js",
+    "genobank-biofiles-ui.js": "./genobank-biofiles-ui.js"
   },
   "cdn": "https://unpkg.com/@genobank/auth@latest/genobank-auth.js"
 }

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenoBank Biofiles Import - Example</title>
+    
+    <!-- Required dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/3.0.0-rc.5/web3.min.js"></script>
+    <script src="https://auth.magic.link/sdk"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@magic-ext/oauth/dist/extension.js"></script>
+    
+    <!-- GenoBank Modules -->
+    <script src="../genobank-auth.js"></script>
+    <script src="../genobank-ui.js"></script>
+    <script src="../genobank-biofiles.js"></script>
+    <script src="../genobank-biofiles-ui.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .files-display {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>GenoBank.io Biofiles Import</h1>
+            <p>Complete example showing authentication and biofile import functionality</p>
+        </div>
+
+        <div class="grid">
+            <!-- Authentication Section -->
+            <div class="section">
+                <h3>1. Authentication</h3>
+                <p>First, authenticate with GenoBank.io to access your biofiles</p>
+                <div id="genobank-auth-container"></div>
+                
+                <div id="auth-status" class="status info" style="display: none;">
+                    <strong>Status:</strong> <span id="auth-status-text">Not logged in</span>
+                </div>
+            </div>
+
+            <!-- Biofiles Import Section -->
+            <div class="section">
+                <h3>2. Import Biofiles</h3>
+                <p>Import your VCF, SNP, and other genomic files from GenoBank dashboard</p>
+                <div id="genobank-biofiles-container"></div>
+            </div>
+        </div>
+
+        <!-- File Processing Section -->
+        <div class="section">
+            <h3>3. File Processing</h3>
+            <p>Process and analyze your imported biofiles</p>
+            
+            <div class="grid">
+                <div>
+                    <h4>Available Files</h4>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="showAllFiles()">Show All Files</button>
+                        <button class="btn btn-success" onclick="showVCFFiles()">VCF Files Only</button>
+                        <button class="btn btn-info" onclick="showSNPFiles()">SNP Files Only</button>
+                        <button class="btn btn-warning" onclick="analyzeFiles()">Analyze Files</button>
+                    </div>
+                    <div class="files-display" id="files-display">
+                        <p>No files imported yet. Please authenticate and import files first.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h4>File Analysis</h4>
+                    <div id="analysis-results">
+                        <p>Import files to see analysis results</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Developer Tools -->
+        <div class="section">
+            <h3>4. Developer Tools</h3>
+            <p>Programmatic access to imported files</p>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="logImportedFiles()">Log Files to Console</button>
+                <button class="btn btn-success" onclick="getFileStatistics()">Get Statistics</button>
+                <button class="btn btn-info" onclick="exportFileMetadata()">Export Metadata</button>
+                <button class="btn btn-warning" onclick="clearAllFiles()">Clear All Files</button>
+            </div>
+            
+            <div id="dev-output" style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-top: 15px; font-family: monospace; white-space: pre-wrap; max-height: 200px; overflow-y: auto;">
+Ready for development commands...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize GenoBank Auth
+        const auth = new GenobankAuth({
+            environment: 'test', // Use 'production' for live environment
+            onLoginSuccess: (data) => {
+                updateAuthStatus(true, data);
+                biofilesUI.updateUI(); // Update biofiles UI when logged in
+                showStatus('Authentication successful!', 'success');
+            },
+            onLoginError: (error) => {
+                updateAuthStatus(false);
+                showStatus('Authentication failed: ' + error.message, 'error');
+            },
+            autoRedirect: false // Disable auto-redirect for this example
+        });
+
+        // Initialize Authentication UI
+        const authUI = new GenobankAuthUI(auth, {
+            containerSelector: '#genobank-auth-container',
+            showLogo: true,
+            buttonText: {
+                metamask: 'Connect MetaMask Wallet',
+                google: 'Continue with Google'
+            }
+        });
+
+        // Initialize Biofiles Manager
+        const biofiles = new GenobankBiofiles(auth);
+
+        // Initialize Biofiles UI
+        const biofilesUI = new GenobankBiofilesUI(biofiles, {
+            containerSelector: '#genobank-biofiles-container',
+            showFilePreview: true,
+            showStatistics: true,
+            onFileImported: (file, index, total) => {
+                updateFilesDisplay();
+                logOutput(`Imported: ${file.name} (${index}/${total})`);
+            },
+            onImportComplete: (files) => {
+                updateFilesDisplay();
+                logOutput(`Import complete! ${files.length} files imported.`);
+                showStatus(`Successfully imported ${files.length} files`, 'success');
+            },
+            onError: (error) => {
+                logOutput(`Error: ${error.message}`);
+                showStatus('Import error: ' + error.message, 'error');
+            }
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            authUI.render();
+            biofilesUI.render();
+            
+            updateAuthStatus(auth.isLoggedIn());
+            
+            // Handle OAuth callback if present
+            if (window.location.search.includes('oauth_callback')) {
+                auth.handleOAuthResult().then(() => {
+                    updateAuthStatus(true);
+                    biofilesUI.updateUI();
+                });
+            }
+        });
+
+        function updateAuthStatus(isLoggedIn, data = null) {
+            const statusDiv = document.getElementById('auth-status');
+            const statusText = document.getElementById('auth-status-text');
+            
+            statusDiv.style.display = 'block';
+            
+            if (isLoggedIn) {
+                const wallet = auth.shortWallet(auth.getUserWallet());
+                const method = auth.getLoginMethod();
+                const isPermittee = auth.isCurrentUserPermittee();
+                
+                statusText.innerHTML = `Logged in as ${wallet} via ${method} ${isPermittee ? '(Permittee)' : ''}`;
+                statusDiv.className = 'status success';
+            } else {
+                statusText.textContent = 'Not logged in';
+                statusDiv.className = 'status info';
+            }
+        }
+
+        function updateFilesDisplay() {
+            const display = document.getElementById('files-display');
+            const files = biofiles.getImportedFiles();
+            
+            if (files.length === 0) {
+                display.innerHTML = '<p>No files imported yet.</p>';
+                return;
+            }
+            
+            display.innerHTML = files.map(file => `
+                <div class="file-item">
+                    <div>
+                        <strong>${file.name}</strong><br>
+                        <small>${formatFileSize(file.size)} • ${file.source === 'user_dashboard' ? 'My Files' : 'Lab Files'}</small>
+                    </div>
+                    <div>
+                        ${getFileTypeLabel(file.name)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAllFiles() {
+            updateFilesDisplay();
+            logOutput(`Showing all files (${biofiles.getImportedFiles().length} total)`);
+        }
+
+        function showVCFFiles() {
+            const display = document.getElementById('files-display');
+            const vcfFiles = biofiles.getVCFFiles();
+            
+            if (vcfFiles.length === 0) {
+                display.innerHTML = '<p>No VCF files found.</p>';
+                return;
+            }
+            
+            display.innerHTML = vcfFiles.map(file => `
+                <div class="file-item">
+                    <div>
+                        <strong>${file.name}</strong><br>
+                        <small>${formatFileSize(file.size)} • VCF File</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            logOutput(`Showing VCF files (${vcfFiles.length} found)`);
+        }
+
+        function showSNPFiles() {
+            const display = document.getElementById('files-display');
+            const snpFiles = biofiles.getSNPFiles();
+            
+            if (snpFiles.length === 0) {
+                display.innerHTML = '<p>No SNP files found.</p>';
+                return;
+            }
+            
+            display.innerHTML = snpFiles.map(file => `
+                <div class="file-item">
+                    <div>
+                        <strong>${file.name}</strong><br>
+                        <small>${formatFileSize(file.size)} • SNP File</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            logOutput(`Showing SNP files (${snpFiles.length} found)`);
+        }
+
+        function analyzeFiles() {
+            const stats = biofiles.getFileStatistics();
+            const analysis = document.getElementById('analysis-results');
+            
+            analysis.innerHTML = `
+                <div class="status info">
+                    <h5>File Analysis Results</h5>
+                    <p><strong>Total Files:</strong> ${stats.total}</p>
+                    <p><strong>VCF Files:</strong> ${stats.vcfFiles}</p>
+                    <p><strong>SNP Files:</strong> ${stats.snpFiles}</p>
+                    <p><strong>Other Files:</strong> ${stats.otherFiles}</p>
+                    <p><strong>User Files:</strong> ${stats.userFiles}</p>
+                    <p><strong>Lab Files:</strong> ${stats.labFiles}</p>
+                </div>
+            `;
+            
+            logOutput('File analysis completed');
+        }
+
+        // Developer tool functions
+        function logImportedFiles() {
+            const files = biofiles.getImportedFiles();
+            console.log('Imported Files:', files);
+            logOutput(`Logged ${files.length} files to console. Check browser dev tools.`);
+        }
+
+        function getFileStatistics() {
+            const stats = biofiles.getFileStatistics();
+            console.log('File Statistics:', stats);
+            logOutput(JSON.stringify(stats, null, 2));
+        }
+
+        function exportFileMetadata() {
+            const metadata = biofiles.exportFileList();
+            console.log('File Metadata:', metadata);
+            
+            // Create download
+            const blob = new Blob([metadata], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'biofiles-metadata.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            logOutput('File metadata exported and downloaded');
+        }
+
+        function clearAllFiles() {
+            if (confirm('Are you sure you want to clear all imported files?')) {
+                biofiles.clearImportedFiles();
+                updateFilesDisplay();
+                biofilesUI.updateUI();
+                logOutput('All files cleared');
+            }
+        }
+
+        // Utility functions
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function getFileTypeLabel(filename) {
+            const ext = filename.toLowerCase().split('.').pop();
+            switch (ext) {
+                case 'vcf': return '<span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">VCF</span>';
+                case 'snp': return '<span style="background: #17a2b8; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">SNP</span>';
+                case 'gz': return '<span style="background: #ffc107; color: #212529; padding: 2px 6px; border-radius: 3px; font-size: 11px;">GZ</span>';
+                default: return '<span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">FILE</span>';
+            }
+        }
+
+        function logOutput(message) {
+            const output = document.getElementById('dev-output');
+            const timestamp = new Date().toLocaleTimeString();
+            output.textContent += `[${timestamp}] ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function showStatus(message, type) {
+            // You can implement a toast notification system here
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // Make objects available globally for debugging
+        window.genobankAuth = auth;
+        window.genobankBiofiles = biofiles;
+        window.genobankBiofilesUI = biofilesUI;
+    </script>
+</body>
+</html>

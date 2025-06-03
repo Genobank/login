@@ -67,4 +67,65 @@ export declare class GenobankAuthUI {
   showError(message: string): void;
 }
 
+// Biofiles types
+export interface FileStatistics {
+  total: number;
+  vcfFiles: number;
+  snpFiles: number;
+  userFiles: number;
+  labFiles: number;
+  otherFiles: number;
+}
+
+export interface ImportedFile extends File {
+  owner?: string;
+  biosample_serial?: string;
+  source: 'user_dashboard' | 'lab_dashboard';
+  genobankPath: string;
+}
+
+export interface GenobankBiofilesUIOptions {
+  containerSelector?: string;
+  showFilePreview?: boolean;
+  showStatistics?: boolean;
+  onFileImported?: (file: ImportedFile, index: number, total: number) => void;
+  onImportComplete?: (files: ImportedFile[]) => void;
+  onError?: (error: Error) => void;
+}
+
+export declare class GenobankBiofiles {
+  constructor(auth: GenobankAuth);
+  
+  importUserDashboardFiles(
+    onProgress?: (current: number, total: number, filename: string) => void,
+    onFileImported?: (file: ImportedFile, index: number, total: number) => void
+  ): Promise<ImportedFile[]>;
+  
+  importLabDashboardFiles(
+    onProgress?: (current: number, total: number, filename: string) => void,
+    onFileImported?: (file: ImportedFile, index: number, total: number) => void
+  ): Promise<ImportedFile[]>;
+  
+  getImportedFiles(): ImportedFile[];
+  getFilesByType(type: string): ImportedFile[];
+  getVCFFiles(): ImportedFile[];
+  getSNPFiles(): ImportedFile[];
+  
+  clearImportedFiles(): void;
+  removeImportedFile(file: ImportedFile): void;
+  
+  isCurrentlyImporting(): boolean;
+  getFileStatistics(): FileStatistics;
+  exportFileList(): string;
+}
+
+export declare class GenobankBiofilesUI {
+  constructor(biofiles: GenobankBiofiles, options?: GenobankBiofilesUIOptions);
+  
+  render(): void;
+  updateUI(): void;
+  removeFile(filename: string): void;
+  showError(message: string): void;
+}
+
 export default GenobankAuth;
