@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenoBank Auth Enhanced - Basic Example</title>
+    
+    <!-- Required dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/3.0.0-rc.5/web3.min.js"></script>
+    <script src="https://auth.magic.link/sdk"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@magic-ext/oauth/dist/extension.js"></script>
+    
+    <!-- GenoBank Auth Enhanced -->
+    <script src="../genobank-auth-error.js"></script>
+    <script src="../network-configs.js"></script>
+    <script src="../dependency-loader.js"></script>
+    <script src="../genobank-auth-enhanced.js"></script>
+    <script src="../plugins/analytics-plugin.js"></script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            color: #333;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn.secondary {
+            background: #6c757d;
+        }
+        
+        .btn.danger {
+            background: #dc3545;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .network-selector {
+            margin: 20px 0;
+        }
+        
+        .network-selector select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin: 0 10px;
+        }
+        
+        .user-info {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .events-log {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .plugin-demo {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 GenoBank Auth Enhanced - Demo</h1>
+        <p>This demo showcases the enhanced authentication module with multi-network support, error handling, and plugins.</p>
+        
+        <!-- Network Selection -->
+        <div class="auth-section">
+            <h3>Network Configuration</h3>
+            <div class="network-selector">
+                <label>Network:</label>
+                <select id="network-select">
+                    <option value="avalanche">Avalanche</option>
+                    <option value="ethereum">Ethereum</option>
+                    <option value="polygon">Polygon</option>
+                    <option value="bsc">Binance Smart Chain</option>
+                </select>
+                
+                <label>Environment:</label>
+                <select id="environment-select">
+                    <option value="test">Test</option>
+                    <option value="production">Production</option>
+                </select>
+                
+                <button class="btn secondary" onclick="initializeAuth()">Initialize Auth</button>
+            </div>
+        </div>
+        
+        <!-- Authentication -->
+        <div class="auth-section">
+            <h3>Authentication</h3>
+            <button class="btn" id="metamask-btn" onclick="loginMetamask()" disabled>
+                🦊 Connect MetaMask
+            </button>
+            <button class="btn" id="google-btn" onclick="loginGoogle()" disabled>
+                🔐 Sign in with Google
+            </button>
+            <button class="btn danger" id="logout-btn" onclick="logout()" disabled>
+                🚪 Logout
+            </button>
+        </div>
+        
+        <!-- Status Display -->
+        <div id="status-container"></div>
+        
+        <!-- User Information -->
+        <div id="user-info" class="user-info" style="display: none;">
+            <h3>👤 User Information</h3>
+            <div id="user-details"></div>
+        </div>
+        
+        <!-- Plugin Demo -->
+        <div class="plugin-demo">
+            <h3>🧩 Analytics Plugin Demo</h3>
+            <p>Events are being tracked and logged below:</p>
+            <button class="btn secondary" onclick="showAnalytics()">Show Analytics</button>
+            <button class="btn secondary" onclick="clearAnalytics()">Clear Analytics</button>
+        </div>
+        
+        <!-- Events Log -->
+        <div class="auth-section">
+            <h3>📊 Events Log</h3>
+            <div id="events-log" class="events-log"></div>
+        </div>
+        
+        <!-- Error Testing -->
+        <div class="auth-section">
+            <h3>🔧 Error Testing</h3>
+            <button class="btn secondary" onclick="testNetworkError()">Test Network Error</button>
+            <button class="btn secondary" onclick="testWalletError()">Test Wallet Error</button>
+            <button class="btn secondary" onclick="testConfigError()">Test Config Error</button>
+        </div>
+    </div>
+
+    <script>
+        let auth = null;
+        let analytics = null;
+        
+        // Initialize with default configuration
+        window.addEventListener('load', () => {
+            initializeAuth();
+        });
+        
+        function initializeAuth() {
+            const network = document.getElementById('network-select').value;
+            const environment = document.getElementById('environment-select').value;
+            
+            try {
+                // Initialize analytics plugin
+                analytics = new AnalyticsPlugin({
+                    enabled: true,
+                    customTracker: (event) => {
+                        logEvent('Analytics', event);
+                    }
+                });
+                
+                // Initialize auth with configuration
+                auth = new GenobankAuth({
+                    network: network,
+                    environment: environment,
+                    onLoginSuccess: (data) => {
+                        logEvent('Success', `Login successful via ${data.method}`);
+                        showStatus(`✅ Login successful! Network: ${data.network} (Chain ID: ${data.chainId})`, 'success');
+                        updateUserInfo(data);
+                        updateButtons(true);
+                    },
+                    onLoginError: (error) => {
+                        logEvent('Error', `Login failed: ${error.code} - ${error.message}`);
+                        showStatus(`❌ Login failed: ${error.message}`, 'error');
+                        updateButtons(false);
+                    },
+                    onLogout: () => {
+                        logEvent('Info', 'User logged out');
+                        showStatus('👋 Logged out successfully', 'info');
+                        hideUserInfo();
+                        updateButtons(false);
+                    }
+                });
+                
+                // Add analytics plugin
+                auth.use(analytics);
+                
+                // Check if already logged in
+                if (auth.isLoggedIn()) {
+                    const userData = {
+                        wallet: auth.getUserWallet(),
+                        method: auth.getLoginMethod(),
+                        network: auth.network,
+                        chainId: auth.networkConfig.chainId
+                    };
+                    updateUserInfo(userData);
+                    updateButtons(true);
+                    showStatus('✅ Already authenticated', 'success');
+                }
+                
+                // Enable buttons
+                document.getElementById('metamask-btn').disabled = false;
+                document.getElementById('google-btn').disabled = false;
+                
+                logEvent('Info', `Auth initialized for ${network} ${environment}`);
+                showStatus(`🔧 Auth initialized for ${network} ${environment}`, 'info');
+                
+            } catch (error) {
+                logEvent('Error', `Initialization failed: ${error.message}`);
+                showStatus(`❌ Initialization failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function loginMetamask() {
+            if (!auth) return;
+            
+            try {
+                logEvent('Info', 'Attempting MetaMask login...');
+                showStatus('🔄 Connecting to MetaMask...', 'info');
+                await auth.loginWithMetamask();
+            } catch (error) {
+                // Error handled by callback
+            }
+        }
+        
+        async function loginGoogle() {
+            if (!auth) return;
+            
+            try {
+                logEvent('Info', 'Attempting Google login...');
+                showStatus('🔄 Signing in with Google...', 'info');
+                await auth.loginWithGoogle();
+            } catch (error) {
+                // Error handled by callback
+            }
+        }
+        
+        async function logout() {
+            if (!auth) return;
+            
+            try {
+                await auth.logout();
+            } catch (error) {
+                logEvent('Error', `Logout failed: ${error.message}`);
+                showStatus(`❌ Logout failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function updateButtons(isLoggedIn) {
+            document.getElementById('metamask-btn').disabled = isLoggedIn;
+            document.getElementById('google-btn').disabled = isLoggedIn;
+            document.getElementById('logout-btn').disabled = !isLoggedIn;
+        }
+        
+        function updateUserInfo(data) {
+            const userInfo = document.getElementById('user-info');
+            const userDetails = document.getElementById('user-details');
+            
+            userDetails.innerHTML = `
+                <p><strong>Wallet:</strong> ${data.wallet}</p>
+                <p><strong>Short Wallet:</strong> ${auth.shortWallet(data.wallet)}</p>
+                <p><strong>Login Method:</strong> ${data.method}</p>
+                <p><strong>Network:</strong> ${data.network}</p>
+                <p><strong>Chain ID:</strong> ${data.chainId}</p>
+                <p><strong>Permittee:</strong> ${data.isPermittee ? 'Yes' : 'No'}</p>
+                ${data.userInfo ? `<p><strong>Email:</strong> ${data.userInfo.email}</p>` : ''}
+            `;
+            
+            userInfo.style.display = 'block';
+        }
+        
+        function hideUserInfo() {
+            document.getElementById('user-info').style.display = 'none';
+        }
+        
+        function showStatus(message, type) {
+            const container = document.getElementById('status-container');
+            container.innerHTML = `<div class="status ${type}">${message}</div>`;
+            
+            // Auto-clear after 5 seconds for non-error messages
+            if (type !== 'error') {
+                setTimeout(() => {
+                    container.innerHTML = '';
+                }, 5000);
+            }
+        }
+        
+        function logEvent(type, message) {
+            const log = document.getElementById('events-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = `[${timestamp}] ${type}: ${message}\n`;
+            log.textContent += entry;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function showAnalytics() {
+            if (analytics) {
+                const events = analytics.getEvents();
+                logEvent('Analytics', `Total events: ${events.length}`);
+                events.forEach((event, index) => {
+                    logEvent('Analytics', `${index + 1}. ${event.name}: ${JSON.stringify(event.properties)}`);
+                });
+            }
+        }
+        
+        function clearAnalytics() {
+            if (analytics) {
+                analytics.clearEvents();
+                logEvent('Analytics', 'Events cleared');
+            }
+        }
+        
+        // Error testing functions
+        function testNetworkError() {
+            const error = new NetworkError('This is a test network error', { code: 'TEST_ERROR' });
+            auth.onLoginError(error);
+        }
+        
+        function testWalletError() {
+            const error = new WalletError('This is a test wallet error', { code: 'TEST_WALLET_ERROR' });
+            auth.onLoginError(error);
+        }
+        
+        function testConfigError() {
+            try {
+                new GenobankAuth({ network: 'invalid-network' });
+            } catch (error) {
+                auth.onLoginError(error);
+            }
+        }
+        
+        // Global error handler
+        window.addEventListener('error', (event) => {
+            logEvent('Error', `Global error: ${event.error.message}`);
+        });
+        
+        // Log dependency status
+        window.addEventListener('load', () => {
+            const deps = ['ethers', 'Web3', 'Magic'];
+            deps.forEach(dep => {
+                const status = typeof window[dep] !== 'undefined' ? 'Loaded' : 'Missing';
+                logEvent('Dependency', `${dep}: ${status}`);
+            });
+        });
+    </script>
+</body>
+</html>
