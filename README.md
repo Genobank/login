@@ -251,7 +251,7 @@ if (auth.isLoggedIn()) {
 - Chain ID: 43113
 
 ### Production Environment  
-- API: `https://api.genobank.io`
+- API: `https://genobank.app`
 - Network: Avalanche Mainnet
 - Chain ID: 43114
 
