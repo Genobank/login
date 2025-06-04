@@ -41,7 +41,7 @@ class GenobankAuthUI {
                     </div>
                     <div class="genobank-auth-buttons">
                         <button id="genobank-metamask-btn" class="genobank-auth-btn genobank-metamask-btn">
-                            <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg" 
+                            <img src="https://cravat.genobank.app/submit/nocache/genobank-login/images/metamask_logo.png" 
                                  alt="MetaMask" class="genobank-btn-icon">
                             ${this.options.buttonText.metamask}
                             <div class="genobank-spinner" id="metamask-spinner" style="display: none;"></div>
