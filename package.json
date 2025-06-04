@@ -1,7 +1,7 @@
 {
-  "name": "@genobank/auth",
-  "version": "1.0.0",
-  "description": "GenoBank.io Authentication & Biofiles Module - Web3/OAuth login and genomic file import for any web application",
+  "name": "@genobank/login",
+  "version": "2.0.0",
+  "description": "GenoBank.io Authentication & File Import Module - Web3/OAuth login and universal genomic file import for any web application",
   "main": "genobank-auth.js",
   "types": "index.d.ts",
   "files": [
@@ -9,6 +9,8 @@
     "genobank-ui.js",
     "genobank-biofiles.js",
     "genobank-biofiles-ui.js",
+    "genobank-file-import.js",
+    "FILE-IMPORT-README.md",
     "index.d.ts",
     "examples/",
     "assets/"
@@ -60,7 +62,18 @@
     "genobank-auth.js": "./genobank-auth.js",
     "genobank-ui.js": "./genobank-ui.js",
     "genobank-biofiles.js": "./genobank-biofiles.js",
-    "genobank-biofiles-ui.js": "./genobank-biofiles-ui.js"
+    "genobank-biofiles-ui.js": "./genobank-biofiles-ui.js",
+    "genobank-file-import.js": "./genobank-file-import.js"
   },
-  "cdn": "https://unpkg.com/@genobank/auth@latest/genobank-auth.js"
+  "exports": {
+    ".": {
+      "import": "./genobank-auth.js",
+      "require": "./genobank-auth.js"
+    },
+    "./auth": "./genobank-auth.js",
+    "./ui": "./genobank-ui.js",
+    "./biofiles": "./genobank-biofiles.js",
+    "./file-import": "./genobank-file-import.js"
+  },
+  "cdn": "https://unpkg.com/@genobank/login@latest/genobank-file-import.js"
 }

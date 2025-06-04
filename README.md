@@ -1,16 +1,26 @@
-# GenoBank.io Authentication Module
+# GenoBank.io Authentication & File Import Module
 
-A standalone JavaScript authentication module that enables Web3 (MetaMask) and OAuth (Google) login functionality for any web application using GenoBank.io's blockchain-based authentication system.
+A comprehensive JavaScript module that provides Web3/OAuth authentication and universal genomic file import functionality for any web application using GenoBank.io's blockchain-based platform.
 
 ## Features
 
-- 🔐 **Dual Authentication**: Support for both MetaMask wallet and Google OAuth login
-- 🌐 **Universal**: Works with vanilla JavaScript, React, Vue, Angular, and any web framework  
-- 🚀 **Easy Integration**: Simple API with pre-built UI components
-- 🔧 **Configurable**: Flexible configuration for different environments
-- 📱 **Responsive**: Mobile-friendly authentication UI
-- ⛓️ **Blockchain**: Built on Avalanche network with Web3 capabilities
-- 🎨 **Customizable**: Easy to style and customize UI components
+### 🔐 Authentication
+- **Dual Authentication**: Support for both MetaMask wallet and Google OAuth login
+- **Universal Compatibility**: Works with vanilla JavaScript, React, Vue, Angular, and any web framework  
+- **Easy Integration**: Simple API with pre-built UI components
+- **Configurable**: Flexible configuration for different environments
+- **Mobile-Friendly**: Responsive authentication UI
+- **Blockchain**: Built on Avalanche network with Web3 capabilities
+
+### 📁 File Import (NEW)
+- **Universal File Import**: Works with any GenoBank application
+- **S3 Integration**: Direct access to GenoBank's S3 bucket via API  
+- **Streaming Support**: Efficient handling of large genomic files
+- **Progress Tracking**: Real-time progress updates with cancellation support
+- **Retry Logic**: Automatic retry for transient network errors
+- **Metadata Preservation**: Maintains file ownership, biosample info, and checksums
+- **File Validation**: Automatic genomic file type detection
+- **Performance Optimized**: Chunk-based streaming with memory efficiency
 
 ## Installation
 
