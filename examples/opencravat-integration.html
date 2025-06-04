@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenCRAVAT + GenoBank File Import Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .import-section {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .genobank-import-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .genobank-import-btn:hover {
+            background: #0056b3;
+        }
+        
+        .genobank-import-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .genobank-cancel-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .genobank-progress {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .progress-details {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .genobank-file-list {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .file-list-header {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .file-list-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .file-list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .file-meta {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .file-source, .file-type {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: #495057;
+        }
+        
+        .remove-file {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+        }
+        
+        .stats-panel {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>OpenCRAVAT + GenoBank File Import</h1>
+    <p>This example demonstrates how to integrate the GenoBank File Import module with OpenCRAVAT for seamless genomic file import from user vaults.</p>
+
+    <div class="import-section">
+        <h3>Import Genomic Files from GenoBank Vault</h3>
+        <p>Import VCF, 23andMe, and other genomic files directly from your GenoBank dashboard.</p>
+        
+        <!-- Import buttons will be added here -->
+        <div id="import-buttons-container"></div>
+        
+        <!-- Progress indicator will be added here -->
+        <div id="progress-container"></div>
+        
+        <!-- File list will be added here -->
+        <div id="file-list-container"></div>
+    </div>
+
+    <div class="stats-panel" id="stats-panel" style="display: none;">
+        <h3>Import Statistics</h3>
+        <div class="stats-grid" id="stats-grid">
+            <!-- Statistics will be populated here -->
+        </div>
+    </div>
+
+    <!-- Include GenoBank File Import Module -->
+    <script src="../genobank-file-import.js"></script>
+
+    <script>
+        // Mock OpenCRAVAT functionality for demo
+        const OC = {
+            inputFileList: [],
+            jobsInfo: {}
+        };
+
+        // Mock functions that would exist in OpenCRAVAT
+        function addFileToInputList(file) {
+            const listItem = document.createElement('div');
+            listItem.className = 'oc-file-item';
+            listItem.innerHTML = `
+                <span>${file.name}</span>
+                <span>${GenobankFileUtils.formatFileSize(file.size)}</span>
+                <button onclick="removeFileFromOC('${file.name}')">Remove</button>
+            `;
+            // In real OpenCRAVAT, this would update the UI
+            console.log('Added to OpenCRAVAT file list:', file.name);
+        }
+
+        function populateMultInputsMessage() {
+            console.log(`OpenCRAVAT: ${OC.inputFileList.length} files ready for analysis`);
+        }
+
+        function removeFileFromOC(filename) {
+            const index = OC.inputFileList.findIndex(f => f.name === filename);
+            if (index > -1) {
+                OC.inputFileList.splice(index, 1);
+                populateMultInputsMessage();
+            }
+        }
+
+        // Mock authentication functions
+        function getUserToken() {
+            // In real implementation, this would get the actual token
+            return localStorage.getItem('userToken') || 'mock-user-token-12345';
+        }
+
+        function getUserWallet() {
+            return localStorage.getItem('userWallet') || '0x1234567890abcdef';
+        }
+
+        // Initialize GenoBank File Importer with OpenCRAVAT integration
+        const importer = new GenobankFileImporter({
+            apiBase: 'https://genobank.app',
+            getUserToken: getUserToken,
+            
+            onProgress: (message, current, total) => {
+                GenobankFileUtils.updateProgress(progressDiv, message, current, total, {
+                    filename: 'Loading...',
+                    fileSize: 0
+                });
+                console.log(`Progress: ${message} (${current}/${total})`);
+            },
+            
+            onFileImported: (file, current, total) => {
+                // Add to OpenCRAVAT input list
+                OC.inputFileList.push(file);
+                addFileToInputList(file);
+                
+                // Add to UI file list
+                GenobankFileUtils.addFileToList(fileList, file);
+                
+                console.log(`Imported: ${file.name} (${current}/${total})`);
+                
+                // Update progress with current file details
+                GenobankFileUtils.updateProgress(progressDiv, `Imported ${file.name}`, current, total, {
+                    filename: file.name,
+                    fileSize: file.size
+                });
+            },
+            
+            onComplete: (files, message) => {
+                // Hide progress indicator
+                GenobankFileUtils.hideProgress(progressDiv);
+                
+                // Update OpenCRAVAT UI
+                populateMultInputsMessage();
+                
+                // Show statistics
+                const stats = importer.getImportStats();
+                showImportStatistics(stats);
+                
+                alert(`Import Complete!\n${message}\n\nFiles are now ready for OpenCRAVAT analysis.`);
+                console.log('Import completed:', files);
+            },
+            
+            onError: (error, fileInfo) => {
+                console.error('Import error:', error, fileInfo);
+                
+                if (error.message.includes('authentication')) {
+                    alert('Authentication failed. Please log in to GenoBank and try again.');
+                } else if (error.message.includes('network')) {
+                    alert('Network error. Please check your connection and try again.');
+                } else {
+                    alert(`Import error: ${error.message}`);
+                }
+                
+                // Hide progress on error
+                GenobankFileUtils.hideProgress(progressDiv);
+            }
+        });
+
+        // Create UI components
+        const buttonsContainer = document.getElementById('import-buttons-container');
+        const progressContainer = document.getElementById('progress-container');
+        const fileListContainer = document.getElementById('file-list-container');
+
+        // Create import buttons
+        const { userButton, labButton, cancelButton } = GenobankFileUtils.createImportButtons(
+            buttonsContainer, 
+            importer,
+            {
+                buttonClass: 'genobank-import-btn',
+                cancelButtonClass: 'genobank-cancel-btn',
+                userButtonText: '📁 Import My Genomic Files',
+                labButtonText: '🏢 Import Lab Shared Files'
+            }
+        );
+
+        // Create progress indicator
+        const progressDiv = GenobankFileUtils.createProgressIndicator(progressContainer, {
+            className: 'genobank-progress'
+        });
+
+        // Create file list
+        const fileList = GenobankFileUtils.createFileList(fileListContainer, {
+            className: 'genobank-file-list'
+        });
+
+        // Show import statistics
+        function showImportStatistics(stats) {
+            const statsPanel = document.getElementById('stats-panel');
+            const statsGrid = document.getElementById('stats-grid');
+            
+            statsGrid.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${stats.totalFiles}</div>
+                    <div class="stat-label">Total Files</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${GenobankFileUtils.formatFileSize(stats.totalSize)}</div>
+                    <div class="stat-label">Total Size</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.genomicFiles}</div>
+                    <div class="stat-label">Genomic Files</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${Object.keys(stats.fileTypes).length}</div>
+                    <div class="stat-label">File Types</div>
+                </div>
+            `;
+            
+            statsPanel.style.display = 'block';
+        }
+
+        // Add some demo functionality
+        console.log('GenoBank File Import integrated with OpenCRAVAT');
+        console.log('Available methods:', {
+            importUserFiles: 'importer.importUserFiles()',
+            importLabFiles: 'importer.importLabFiles()',
+            cancelImport: 'importer.cancelImport()',
+            getStats: 'importer.getImportStats()',
+            clearFiles: 'importer.clearImportedFiles()'
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'u':
+                        e.preventDefault();
+                        if (!importer.isImporting) {
+                            userButton.click();
+                        }
+                        break;
+                    case 'l':
+                        e.preventDefault();
+                        if (!importer.isImporting) {
+                            labButton.click();
+                        }
+                        break;
+                    case 'Escape':
+                        e.preventDefault();
+                        importer.cancelImport();
+                        break;
+                }
+            }
+        });
+
+        // Show keyboard shortcuts
+        console.log('Keyboard shortcuts:');
+        console.log('Ctrl+U: Import user files');
+        console.log('Ctrl+L: Import lab files');
+        console.log('Escape: Cancel import');
+    </script>
+</body>
+</html>

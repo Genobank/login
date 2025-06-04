@@ -1,15 +1,15 @@
-# GenoBank.io Authentication Module - Enhanced v3.0
+# GenoBank.io Authentication & File Import Module - Enhanced v3.0
 
 [![npm version](https://badge.fury.io/js/%40genobank%2Flogin-enhanced.svg)](https://badge.fury.io/js/%40genobank%2Flogin-enhanced)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://github.com/Genobank/login/workflows/CI/badge.svg)](https://github.com/Genobank/login/actions)
 
-A comprehensive, standalone JavaScript authentication module that enables Web3 (MetaMask) and OAuth (Google) login functionality for any web application using GenoBank.io's blockchain-based authentication system.
+A comprehensive JavaScript module that provides Web3/OAuth authentication and universal genomic file import functionality for any web application using GenoBank.io's blockchain-based authentication system.
 
 ## 🚀 What's New in v3.0
 
 - **🛡️ Enhanced Error Handling**: Custom error types with detailed debugging information
-- **🌐 Multi-Network Support**: Ethereum, Polygon, BSC, and custom networks
+- **🌐 Multi-Network Support**: Story, Avalanche, and Ethereum networks
 - **🔧 Dependency Management**: Automatic dependency loading and validation
 - **🧩 Plugin System**: Extensible architecture with analytics and custom plugins
 - **⚛️ Framework Adapters**: Native React and Vue 3 integration
@@ -18,15 +18,26 @@ A comprehensive, standalone JavaScript authentication module that enables Web3 (
 
 ## Features
 
-- 🔐 **Dual Authentication**: Support for both MetaMask wallet and Google OAuth login
-- 🌐 **Universal**: Works with vanilla JavaScript, React, Vue, Angular, and any web framework  
-- 🚀 **Easy Integration**: Simple API with pre-built UI components
-- 🔧 **Configurable**: Flexible configuration for different environments and networks
-- 📱 **Responsive**: Mobile-friendly authentication UI
-- ⛓️ **Multi-Blockchain**: Support for Avalanche, Ethereum, Polygon, BSC, and custom networks
-- 🎨 **Customizable**: Easy to style and customize UI components
-- 🛡️ **Robust**: Advanced error handling and dependency management
-- 🧩 **Extensible**: Plugin system for custom functionality
+### 🔐 Authentication
+- **Dual Authentication**: Support for both MetaMask wallet and Google OAuth login
+- **Universal Compatibility**: Works with vanilla JavaScript, React, Vue, Angular, and any web framework  
+- **Easy Integration**: Simple API with pre-built UI components
+- **Configurable**: Flexible configuration for different environments and networks
+- **Mobile-Friendly**: Responsive authentication UI
+- **Multi-Blockchain**: Support for Story, Avalanche, and Ethereum networks
+- **Customizable**: Easy to style and customize UI components
+- **Robust**: Advanced error handling and dependency management
+- **Extensible**: Plugin system for custom functionality
+
+### 📁 File Import (NEW)
+- **Universal File Import**: Works with any GenoBank application
+- **S3 Integration**: Direct access to GenoBank's S3 bucket via API  
+- **Streaming Support**: Efficient handling of large genomic files
+- **Progress Tracking**: Real-time progress updates with cancellation support
+- **Retry Logic**: Automatic retry for transient network errors
+- **Metadata Preservation**: Maintains file ownership, biosample info, and checksums
+- **File Validation**: Automatic genomic file type detection
+- **Performance Optimized**: Chunk-based streaming with memory efficiency
 
 ## Installation
 
@@ -256,7 +267,7 @@ if (auth.isLoggedIn()) {
 - Chain ID: 43113
 
 ### Production Environment  
-- API: `https://api.genobank.io`
+- API: `https://genobank.app`
 - Network: Avalanche Mainnet
 - Chain ID: 43114
 

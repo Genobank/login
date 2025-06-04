@@ -1,7 +1,7 @@
 {
   "name": "@genobank/login",
   "version": "3.0.0",
-  "description": "Enhanced standalone Web3 authentication module for GenoBank.io with improved error handling, network flexibility, and framework adapters",
+  "description": "GenoBank.io Authentication & File Import Module - Web3/OAuth login and universal genomic file import for any web application with enhanced error handling, network flexibility, and framework adapters",
   "main": "dist/genobank-auth.js",
   "module": "dist/genobank-auth.esm.js",
   "types": "dist/index.d.ts",
@@ -10,6 +10,8 @@
     "adapters",
     "plugins",
     "examples",
+    "genobank-file-import.js",
+    "FILE-IMPORT-README.md",
     "README.md",
     "LICENSE"
   ],
@@ -25,7 +27,8 @@
     "./network": "./dist/network-configs.js",
     "./react": "./adapters/react-adapter.js",
     "./vue": "./adapters/vue-adapter.js",
-    "./plugins/*": "./plugins/*.js"
+    "./plugins/*": "./plugins/*.js",
+    "./file-import": "./genobank-file-import.js"
   },
   "scripts": {
     "build": "rollup -c",
@@ -109,6 +112,11 @@
     "not dead",
     "not ie <= 11"
   ],
+  "browser": {
+    "genobank-auth.js": "./dist/genobank-auth.js",
+    "genobank-ui.js": "./dist/genobank-ui.js",
+    "genobank-file-import.js": "./genobank-file-import.js"
+  },
   "jest": {
     "testEnvironment": "jsdom",
     "collectCoverageFrom": [
@@ -123,5 +131,6 @@
         "statements": 80
       }
     }
-  }
+  },
+  "cdn": "https://unpkg.com/@genobank/login@latest/genobank-file-import.js"
 }
