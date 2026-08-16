@@ -65,7 +65,7 @@
     "typescript"
   ],
   "author": "GenoBank.io",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/Genobank/login/issues"
   },
